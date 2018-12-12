@@ -60,9 +60,36 @@ pStackMeta_t lastElement = NULL;
 
  int mystack_push(int handle, void* obj)
  {
-    DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
+	 if(handle <= 0)
+	 {
+		 return -1;
+	 }
+	pStackMeta_t tempstack = gStackList;
+	pStackObject_t newObject = obj;
+
+	while (tempstack->handle != handle)
+	 {
+		tempstack = tempstack->next;
+	}
+	//Found the stack, lets adjust the objsize
+	tempstack->objsize += sizeof(obj);
+	//If there is nothing in the stack, easy! put the head direcly on the newobject.
+	if (tempstack->stack == NULL)
+	{
+		tempstack->stack = newObject;
+	}
+	else
+	{
+		//put the current head in the stack in a temp variable, then put the new object as the head of the stack, and put the temp variable as the stack->next
+		pStackObject_t tempObj = tempstack->stack;
+		tempstack->stack = newObject;
+		newObject->next = tempObj;
+	}
+  DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
  	return 0;
  }
+
+
 
  int mystack_pop(int handle, void* obj)
  {
