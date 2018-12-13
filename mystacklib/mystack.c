@@ -85,6 +85,7 @@ pStackMeta_t lastElement = NULL;
 		tempstack->stack = newObject;
 		newObject->next = tempObj;
 	}
+	tempstack->numelem++;
   DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
  	return 0;
  }
@@ -93,6 +94,12 @@ pStackMeta_t lastElement = NULL;
 
  int mystack_pop(int handle, void* obj)
  {
+	 if(handle <= 0)
+	 {
+		 return -1;
+	 }
+
+
     DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
  	return 0;
  }
