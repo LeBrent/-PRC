@@ -38,7 +38,7 @@ pStackMeta_t lastElement = NULL;
 	 {
 		return -1;
 	}
-	pStackMeta_t newstack = malloc(sizeof(pStackMeta_t));
+	pStackMeta_t newstack = malloc(sizeof(StackMeta_t));
 
 	if(gStackList == NULL)
 	{
@@ -60,7 +60,7 @@ pStackMeta_t lastElement = NULL;
 
  int mystack_push(int handle, void* obj)
  {
-	 if(handle <= 0)
+	 if(handle <= 0 || gStackList == NULL)
 	 {
 		 return -1;
 	 }
@@ -85,6 +85,8 @@ pStackMeta_t lastElement = NULL;
 		tempstack->stack = newObject;
 		newObject->next = tempObj;
 	}
+
+	tempstack->numelem++;
   DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
  	return 0;
  }
@@ -93,18 +95,79 @@ pStackMeta_t lastElement = NULL;
 
  int mystack_pop(int handle, void* obj)
  {
-    DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
- 	return 0;
+	 if (handle <=0 || gStackList == NULL)
+	 {
+ 		return -2;
+	}
+
+ 	pStackMeta_t temp = gStackList;
+
+ 	while (temp!=NULL) {
+ 		if (temp->handle == handle) {
+ 			pStackObject_t toDestroy = temp->stack;
+ 			temp->stack = temp->stack->next;
+
+ 			obj = toDestroy->obj;
+ 			free(toDestroy);
+			temp->numelem--;
+
+ 			DBG_PRINTF("handle: %d, obj: %p\n", handle, obj);
+ 			return 0;
+ 		}
+ 		temp = temp->next;
+ 	}
+ 	return -1;
  }
 
  int mystack_destroy(int handle)
  {
     DBG_PRINTF("handle: %d\n", handle);
+
+	if(handle <= 0 || gStackList == NULL)
+	{
+		return -1;
+	}
+
+	pStackMeta_t temp = gStackList;
+
+	while (temp!= NULL)
+	{
+		if (temp->handle == handle)
+			{
+				pStackObject_t toDestroy = temp->stack;
+
+				//clearing the stackobject objects
+				while (toDestroy != NULL)
+				{
+					temp->stack = temp->stack->next;
+					free(toDestroy);
+				}
+				//destroy the stackmeta object
+				free(temp);
+			}
+			temp = temp->next;
+	}
+
  	return 0;
  }
 
  int mystack_nofelem(int handle)
  {
+
+	 if (handle <= 0)
+	 {
+	 	return -1;
+	 }
+	 pStackMeta_t temp = gStackList;
+
+	 while (temp!= NULL)
+	 {
+		 if (temp->handle == handle)
+		 {
+			 return temp->numelem;
+		 }
+		 temp = temp->next;
+	 }
     DBG_PRINTF("handle: %d\n", handle);
  	return 0;
  }
