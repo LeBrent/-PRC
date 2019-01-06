@@ -67,53 +67,77 @@ int mystack_push(int handle, void* obj)
 		return -1;
 	}
 	pStackMeta_t tempstack = gStackList;
-	pStackObject_t newObject = (pStackObject_t)malloc(sizeof(StackObject_t));
+
 
 
 	while (tempstack->handle != handle)
 	{
 		tempstack = tempstack->next;
 	}
-	newObject->obj = malloc(sizeof(tempstack->objsize)); //malloc sizeof van obj
-	newObject->obj = obj;
+
+	pStackObject_t newObject = (pStackObject_t)malloc(sizeof(StackObject_t));
+	newObject->obj = malloc(sizeof(tempstack->objsize));
+	newObject->next = tempstack->stack;  //malloc sizeof van obj
+	memcpy(newObject->obj, obj, tempstack->objsize);
 
 	//put the current head in the stack in a temp variable, then put the new object as the head of the stack, and put the temp variable as the stack->next
-	pStackObject_t tempObj = tempstack->stack;
 	tempstack->stack = newObject;
-	newObject->next = tempObj;
-
+ 	tempstack->numelem++;
 	//newobject->obj = malloc(tempstack->objsize)
 	//tempstack->stack = tempobj;
 
-	tempstack->numelem++;
-	DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
+
+	//DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
 	return 0;
 }
 
 int mystack_pop(int handle, void* obj)
 {
-	if (handle <=0 || gStackList == NULL || obj == NULL)
+	pStackMeta_t current = gStackList;
+
+	while (current != NULL)
 	{
-		return -1;
-	}
+		if (current->handle == handle)
+		{
+			pStackObject_t currentObj = current->stack;
+			pStackObject_t prevObj = NULL;
 
-	pStackMeta_t temp = gStackList;
+			if (currentObj == NULL)
+			{
+				return -1;
+			}
+			else
+			{
+				while (currentObj->next != NULL)
+				{
+					prevObj = currentObj;
+					currentObj = currentObj->next;
+				}
 
-	while (temp!=NULL) {
-		if (temp->handle == handle) {
-			pStackObject_t toDestroy = temp->stack;
+				memcpy(obj, currentObj->obj, current->objsize);
 
-			memcpy(obj, toDestroy->obj, temp->objsize);
-			temp->stack = temp->stack->next;
-			//free(toDestroy->obj);
-			free(toDestroy);
-			temp->numelem--;
-			DBG_PRINTF("handle: %d, obj: %p\n", handle, obj);
+				if (prevObj != NULL)
+				{
+					prevObj->next = NULL;
+				}
+				else
+				{
+					current->stack = NULL;
+				}
+
+				free(currentObj->obj);
+				free(currentObj);
+			}
+
+			current->numelem -= 1;
 			return 0;
 		}
-		temp = temp->next;
+
+		current = current->next;
 	}
-	return -1;
+
+    DBG_PRINTF("handle: %d\n, obj: %p\n", handle, obj);
+ 	return -1;
 }
 
 int mystack_destroy(int handle)
@@ -131,21 +155,25 @@ int mystack_destroy(int handle)
 	{
 		if (temp->handle == handle)
 		{
-			pStackObject_t toDestroy = temp->stack;
+			pStackObject_t currentobject = temp->stack;
+			pStackObject_t next;
 
 			//clearing the stackobject objects
-			while (toDestroy != NULL)
+			while (currentobject != NULL)
 			{
-				temp->stack = temp->stack->next;
-				free(toDestroy);
+				next = currentobject->next;
+				free(currentobject->next);
+				free(currentobject);
+				currentobject = next;
 			}
 			//destroy the stackmeta object
 			free(temp);
+			return 0;
 		}
 		temp = temp->next;
 	}
 
-	return 0;
+	return -2;
 }
 
 int mystack_nofelem(int handle)

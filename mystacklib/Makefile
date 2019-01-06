@@ -31,5 +31,13 @@ include $(SRCS:.c=.d)
 test: stackTest.c
 	$(CC) $(CFLAGS) -L. -I$(UNITY_DIR) $^ $(UNITY_DIR)/unity.c -o $@ -lmystack
 
+calc: calculator.c
+	$(CC) $(CFLAGS) -L. -I$(UNITY_DIR) $^ $(UNITY_DIR)/unity.c -o $@ -lmystack
+
+reverse: ReversedList.c
+	$(CC) $(CFLAGS) -L. -I$(UNITY_DIR) $^ $(UNITY_DIR)/unity.c -o $@ -lmystack
+
 clean:
 	-${RM} ${TARGET_LIB} ${OBJS} $(SRCS:.c=.d) test
+	-${RM} ${TARGET_LIB} ${OBJS} $(SRCS:.c=.d) calc
+	-${RM} ${TARGET_LIB} ${OBJS} $(SRCS:.c=.d) reverse

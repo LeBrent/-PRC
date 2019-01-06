@@ -20,11 +20,7 @@ void test_create_a_stack_and_get_the_handle(void)
   TEST_ASSERT_EQUAL(1,mystack_create(20));
 }
 
-void test_destroy_previous_stack(void)
-{
-  //first stack that is about to be created so the handle should be 1
-  TEST_ASSERT_EQUAL(0,mystack_destroy(1));
-}
+
 
 void test_create_multiple_stacks(void)
 {
@@ -57,15 +53,31 @@ void test_succesful_pop(void)
   mystack_pop(2,&number2);
   TEST_ASSERT_EQUAL_INT(number, number2);
 }
+void test_nofelem(void)
+{
+	TEST_ASSERT_EQUAL(1, mystack_nofelem(1));
+	TEST_ASSERT_EQUAL(-1, mystack_nofelem(-1234234));
+	TEST_ASSERT_EQUAL(1, mystack_nofelem(3));
+	TEST_ASSERT_EQUAL(1, mystack_nofelem(2));
+}
+void test_destroy_stack(void)
+{
+  //first stack that is about to be created so the handle should be 1
+  TEST_ASSERT_EQUAL(0,mystack_destroy(1));
+  TEST_ASSERT_EQUAL(-2,mystack_destroy(100));
+}
+
+
 int main() {
   UnityBegin("stackTest.c");
 
   MY_RUN_TEST(test_create_a_stack_and_get_the_handle);
-  MY_RUN_TEST(test_destroy_previous_stack);
+
 
 	MY_RUN_TEST(test_create_multiple_stacks);
   MY_RUN_TEST(test_succesful_push);
   MY_RUN_TEST(test_succesful_pop);
-
+  MY_RUN_TEST(test_nofelem);
+  MY_RUN_TEST(test_destroy_stack);
   return UnityEnd();
 }
